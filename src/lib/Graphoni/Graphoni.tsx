@@ -70,7 +70,9 @@ export const Graphoni: FC<GraphoniProps> = ({
     });
 
     ctx!.fillStyle = fontColor;
-
+    ctx!.beginPath();
+    ctx!.moveTo(leftMargin, height - otherMargin);
+    ctx!.lineTo(leftMargin, otherMargin);
     for (let i = 1; i <= ySteps; i++) {
       const aYStep = (height - 2 * otherMargin) / ySteps;
       ctx?.fillText(
