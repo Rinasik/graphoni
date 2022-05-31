@@ -1,26 +1,18 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { Graphoni } from "./lib/Graphoni";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+const data = {
+  values: [
+    { x: 90, y: 700 },
+    { x: 105, y: 500 },
+    { x: 305, y: 300 },
+    { x: 450, y: 400 },
+    { x: 600, y: 900 },
+    {x: 1000, y: 200},
+    {x: 780, y: 1050},
 
-export default App;
+  ],
+};
+
+export const App = () => {
+  return <Graphoni height={600} width={1200} color="blue" data={data}/>;
+};
