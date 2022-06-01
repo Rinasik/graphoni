@@ -1,6 +1,6 @@
 import { FC, useEffect, useRef, useState } from "react";
 import { Grapher } from "../Grapher";
-import { Dot, GraphoniProps } from "./Graphoni.types";
+import { GraphoniProps } from "./Graphoni.types";
 
 export const Graphoni: FC<GraphoniProps> = ({
   color = "red",
@@ -11,6 +11,7 @@ export const Graphoni: FC<GraphoniProps> = ({
   ySteps = 10,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const topCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const [mousePosX, setMousePosX] = useState(0);
   const grapher = new Grapher(data, { width, height, xSteps, ySteps });
 
@@ -19,12 +20,37 @@ export const Graphoni: FC<GraphoniProps> = ({
   };
 
   useEffect(() => {
-    canvasRef.current?.addEventListener("mousemove", (event) => mouseMove(event));
     const ctx = canvasRef!.current!.getContext("2d");
-    ctx && grapher.draw(ctx, color, mousePosX);
 
+    topCanvasRef &&
+      (topCanvasRef.current!.style.top = `${canvasRef.current!.offsetTop}px`);
+    topCanvasRef &&
+      (topCanvasRef.current!.style.left = `${canvasRef.current!.offsetLeft}px`);
+
+    ctx && grapher.drawAxes(ctx, color);
+  }, []);
+
+  useEffect(() => {
+    const ctx = topCanvasRef!.current!.getContext("2d");
+    topCanvasRef.current?.addEventListener("mousemove", mouseMove);
+    ctx && grapher.drawDotTip(ctx, mousePosX);
     return canvasRef.current?.removeEventListener("mousemove", mouseMove);
   }, [mousePosX]);
 
-  return <canvas ref={canvasRef} height={height} width={width} />;
+  return (
+    <>
+      <canvas
+        ref={canvasRef}
+        height={height}
+        width={width}
+        style={{ zIndex: 0 }}
+      />
+      <canvas
+        ref={topCanvasRef}
+        height={height}
+        width={width}
+        style={{ zIndex: 1, position: "absolute" }}
+      />
+    </>
+  );
 };
