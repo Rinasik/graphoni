@@ -13,10 +13,15 @@ export const Graphoni: FC<GraphoniProps> = ({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const topCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const [mousePosX, setMousePosX] = useState(0);
+  const [tipIsOpen, setTipIsOpen] = useState(false);
+
   const grapher = new Grapher(data, { width, height, xSteps, ySteps });
 
   const mouseMove = (event: MouseEvent) => {
     setMousePosX(event.offsetX);
+  };
+  const handleClick = () => {
+    setTipIsOpen(!tipIsOpen);
   };
 
   useEffect(() => {
@@ -28,14 +33,19 @@ export const Graphoni: FC<GraphoniProps> = ({
       (topCanvasRef.current!.style.left = `${canvasRef.current!.offsetLeft}px`);
 
     ctx && grapher.drawAxes(ctx, color);
-  }, []);
+  }, [data]);
 
   useEffect(() => {
     const ctx = topCanvasRef!.current!.getContext("2d");
     topCanvasRef.current?.addEventListener("mousemove", mouseMove);
-    ctx && grapher.drawDotTip(ctx, mousePosX);
-    return canvasRef.current?.removeEventListener("mousemove", mouseMove);
-  }, [mousePosX]);
+    ctx && grapher.drawTip(ctx, mousePosX, tipIsOpen);
+    topCanvasRef.current!.addEventListener("mouseup", handleClick);
+
+    return () => {
+      topCanvasRef.current!.removeEventListener("mouseup", handleClick);
+      canvasRef.current?.removeEventListener("mousemove", mouseMove);
+    };
+  }, [mousePosX, tipIsOpen]);
 
   return (
     <>

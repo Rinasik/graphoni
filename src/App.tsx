@@ -12,5 +12,5 @@ const data = {
 };
 
 export const App = () => {
-  return <Graphoni height={500} width={1000} data={data} ySteps={20} />;
+  return <Graphoni height={400} width={1000} data={data} ySteps={20} />;
 };

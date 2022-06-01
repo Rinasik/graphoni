@@ -16,7 +16,6 @@ export interface GrapherStyle {
   height: number;
   xSteps: number;
   ySteps: number;
-  leftMargin?: number;
   margin?: number;
   bgColor?: "white";
 }

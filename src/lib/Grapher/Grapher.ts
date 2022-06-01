@@ -15,28 +15,21 @@ export class Grapher implements IGrapher {
 
   constructor(
     data: GraphoniData,
-    {
-      width,
-      height,
-      margin = 10,
-      leftMargin = 30,
-      xSteps,
-      ySteps,
-    }: GrapherStyle
+    { width, height, margin = 10, xSteps, ySteps }: GrapherStyle
   ) {
     this.fontColor = "grey";
 
     this.height = height;
     this.width = width;
     this.margin = margin;
-    this.leftMargin = leftMargin;
+    this.leftMargin = margin * 3;
 
     this.axes = new Axes(data, xSteps, ySteps);
     this.axes.setRatio(this.height, this.width, this.margin, this.leftMargin);
     this.dotes = data.values.map((elem) => ({
       x:
         (elem.x - this.axes.xAxis.xMin) * (this.axes.xAxis?.ratio || 0) +
-        leftMargin,
+        this.leftMargin,
       y: height - elem.y * (this.axes.yAxis?.ratio || 0) - this.margin,
     }));
     this.dotes.sort((a, b) => a.x - b.x);
@@ -109,8 +102,14 @@ export class Grapher implements IGrapher {
     }
   }
 
-  drawDotTip(ctx: CanvasRenderingContext2D, mousePosX: number) {
+  drawTip(
+    ctx: CanvasRenderingContext2D,
+    mousePosX: number,
+    tipIsOpen: boolean
+  ) {
     ctx.clearRect(0, 0, this.width, this.height);
+    ctx.font = `${this.margin}px sans-serif`;
+
     this.dotes.forEach((elem, index, dotes) => {
       if (index && mousePosX >= dotes[index - 1].x && mousePosX <= elem.x) {
         const slope =
@@ -122,8 +121,40 @@ export class Grapher implements IGrapher {
         ctx.beginPath();
         ctx.arc(mousePosX, tipY, 4, 0, Math.PI * 2);
         ctx.fill();
+
+        if (tipIsOpen) {
+          ctx.beginPath();
+          ctx.strokeRect(
+            mousePosX - this.leftMargin,
+            this.margin,
+            2 * this.leftMargin,
+            this.leftMargin
+          );
+          const xValue = Math.round(
+            this.axes.xAxis.xMin +
+              ((mousePosX - this.leftMargin) *
+                (this.axes.xAxis.xMax - this.axes.xAxis.xMin)) /
+                (this.width - this.margin - this.leftMargin)
+          );
+          const yValue = Math.round(
+            ((this.height - tipY - this.margin) * this.axes.yAxis.range) /
+              (this.height - 2 * this.margin)
+          );
+
+          ctx.fillText(
+            `x: ${xValue}`,
+            mousePosX - this.leftMargin + 2,
+            2 * this.margin,
+            2 * this.leftMargin
+          );
+          ctx.fillText(
+            `y: ${yValue}`,
+            mousePosX - this.leftMargin + 2,
+            3 * this.margin,
+            2 * this.leftMargin
+          );
+        }
       }
     });
   }
-
 }
