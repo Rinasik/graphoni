@@ -3,8 +3,8 @@ export type GraphoniData = {
 };
 
 export type GraphoniProps = {
-  width: number ;
-  height: number ;
+  width: number;
+  height: number;
   xSteps?: number;
   ySteps?: number;
   data: GraphoniData;
@@ -16,3 +16,4 @@ export interface Dot {
   x: number;
   y: number;
 }
+
