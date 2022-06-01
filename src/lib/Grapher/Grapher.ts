@@ -42,7 +42,7 @@ export class Grapher implements IGrapher {
     this.dotes.sort((a, b) => a.x - b.x);
   }
 
-  draw(ctx: CanvasRenderingContext2D, color: string) {
+  draw(ctx: CanvasRenderingContext2D, color: string, mousePosX: number) {
     //Gradient
     const grd = ctx.createLinearGradient(0, 0, 0, this.height - this.margin);
     grd.addColorStop(0, color || "red");
@@ -52,25 +52,39 @@ export class Grapher implements IGrapher {
     ctx.fillRect(0, 0, this.width, this.height);
     //Draw dots
     ctx.font = `${this.margin}px sans-serif`;
-    this.dotes.forEach((elem, index) => {
+    this.dotes.forEach((elem, index, dotes) => {
       if (index) {
         ctx.fillStyle = this.fontColor;
 
         ctx.beginPath();
-        ctx.moveTo(this.dotes[index - 1].x, this.dotes[index - 1].y);
+        ctx.moveTo(dotes[index - 1].x, dotes[index - 1].y);
         ctx.lineTo(elem.x, elem.y);
         ctx.stroke();
 
         ctx.beginPath();
-        ctx.moveTo(this.dotes[index - 1].x, this.dotes[index - 1].y);
+        ctx.moveTo(dotes[index - 1].x, dotes[index - 1].y);
         ctx.lineTo(elem.x, elem.y);
         ctx.lineTo(elem.x, this.height - this.margin);
-        ctx.lineTo(this.dotes[index - 1].x, this.height - this.margin);
+        ctx.lineTo(dotes[index - 1].x, this.height - this.margin);
 
         ctx.closePath();
 
         ctx.fillStyle = grd;
         ctx.fill();
+        if (
+          mousePosX >= dotes[index - 1].x &&
+          mousePosX <= elem.x
+        ) {
+          const slope = (elem.y - dotes[index - 1].y) /
+          (elem.x - dotes[index - 1].x);
+          const nullY = elem.y - slope*elem.x;
+
+          const tipY = mousePosX * slope + nullY;
+            ctx.fillStyle = this.fontColor;
+            ctx.beginPath();
+            ctx.arc(mousePosX, tipY, 4, 0, Math.PI * 2);
+            ctx.fill();
+        }
       }
     });
     //yAxis
@@ -107,5 +121,6 @@ export class Grapher implements IGrapher {
         2 * this.margin
       );
     }
+
   }
 }
