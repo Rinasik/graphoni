@@ -11,11 +11,17 @@ export const Graphoni: FC<GraphoniProps> = ({
   ySteps = 10,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const topCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const topLayerCanvasRef = useRef<HTMLCanvasElement | null>(null);
+
   const [mousePosX, setMousePosX] = useState(0);
   const [tipIsOpen, setTipIsOpen] = useState(false);
 
-  const grapher = new Grapher(data, { width, height, xSteps, ySteps });
+  const grapher = new Grapher(data, {
+    width,
+    height,
+    xSteps,
+    ySteps,
+  });
 
   const mouseMove = (event: MouseEvent) => {
     setMousePosX(event.offsetX);
@@ -27,22 +33,27 @@ export const Graphoni: FC<GraphoniProps> = ({
   useEffect(() => {
     const ctx = canvasRef!.current!.getContext("2d");
 
-    topCanvasRef &&
-      (topCanvasRef.current!.style.top = `${canvasRef.current!.offsetTop}px`);
-    topCanvasRef &&
-      (topCanvasRef.current!.style.left = `${canvasRef.current!.offsetLeft}px`);
+    topLayerCanvasRef &&
+      (topLayerCanvasRef.current!.style.top = `${
+        canvasRef.current!.offsetTop
+      }px`);
+    topLayerCanvasRef &&
+      (topLayerCanvasRef.current!.style.left = `${
+        canvasRef.current!.offsetLeft
+      }px`);
+
 
     ctx && grapher.drawAxes(ctx, color);
   }, [data]);
 
   useEffect(() => {
-    const ctx = topCanvasRef!.current!.getContext("2d");
-    topCanvasRef.current?.addEventListener("mousemove", mouseMove);
+    const ctx = topLayerCanvasRef!.current!.getContext("2d");
+    topLayerCanvasRef.current?.addEventListener("mousemove", mouseMove);
     ctx && grapher.drawTip(ctx, mousePosX, tipIsOpen);
-    topCanvasRef.current!.addEventListener("mouseup", handleClick);
+    topLayerCanvasRef.current!.addEventListener("mouseup", handleClick);
 
     return () => {
-      topCanvasRef.current!.removeEventListener("mouseup", handleClick);
+      topLayerCanvasRef.current!.removeEventListener("mouseup", handleClick);
       canvasRef.current?.removeEventListener("mousemove", mouseMove);
     };
   }, [mousePosX, tipIsOpen]);
@@ -56,7 +67,7 @@ export const Graphoni: FC<GraphoniProps> = ({
         style={{ zIndex: 0 }}
       />
       <canvas
-        ref={topCanvasRef}
+        ref={topLayerCanvasRef}
         height={height}
         width={width}
         style={{ zIndex: 1, position: "absolute" }}

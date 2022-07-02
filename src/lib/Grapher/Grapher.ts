@@ -2,7 +2,6 @@ import { Axes } from "../Axes";
 import { IAxes } from "../Axes/Axes.types";
 import { Dot, GraphoniData } from "../Graphoni/Graphoni.types";
 import { GrapherStyle, IGrapher } from "./Grapher.types";
-const bgColor = "white";
 
 export class Grapher implements IGrapher {
   axes: IAxes;
@@ -10,6 +9,7 @@ export class Grapher implements IGrapher {
   height: number;
   width: number;
   fontColor: string;
+  bgColor: string;
   margin: number;
   leftMargin: number;
 
@@ -17,10 +17,10 @@ export class Grapher implements IGrapher {
     data: GraphoniData,
     { width, height, margin = 10, xSteps, ySteps }: GrapherStyle
   ) {
-    this.fontColor = "grey";
-
     this.height = height;
     this.width = width;
+    this.fontColor = "grey";
+    this.bgColor = "white";
     this.margin = margin;
     this.leftMargin = margin * 3;
 
@@ -39,8 +39,10 @@ export class Grapher implements IGrapher {
     //Gradient
     const grd = ctx.createLinearGradient(0, 0, 0, this.height - this.margin);
     grd.addColorStop(0, color || "red");
-    grd.addColorStop(1, bgColor);
-    ctx.fillStyle = bgColor;
+    grd.addColorStop(1, this.bgColor);
+    ctx.fillStyle = this.bgColor;
+    ctx.strokeStyle = this.fontColor;
+
     ctx.clearRect(0, 0, this.width, this.height);
     ctx.fillRect(0, 0, this.width, this.height);
     //Draw dots
@@ -48,6 +50,7 @@ export class Grapher implements IGrapher {
     this.dotes.forEach((elem, index, dotes) => {
       if (index) {
         ctx.fillStyle = this.fontColor;
+        ctx.lineWidth = 2;
 
         ctx.beginPath();
         ctx.moveTo(dotes[index - 1].x, dotes[index - 1].y);
@@ -66,6 +69,8 @@ export class Grapher implements IGrapher {
         ctx.fill();
       }
     });
+    ctx.lineWidth = 1;
+
     //yAxis
     ctx.fillStyle = this.fontColor;
     ctx.beginPath();
@@ -109,20 +114,24 @@ export class Grapher implements IGrapher {
   ) {
     ctx.clearRect(0, 0, this.width, this.height);
     ctx.font = `${this.margin}px sans-serif`;
+    ctx.strokeStyle = this.fontColor;
 
     this.dotes.forEach((elem, index, dotes) => {
       if (index && mousePosX >= dotes[index - 1].x && mousePosX <= elem.x) {
         const slope =
           (elem.y - dotes[index - 1].y) / (elem.x - dotes[index - 1].x);
         const nullY = elem.y - slope * elem.x;
-
+        //Draw DotTip
         const tipY = mousePosX * slope + nullY;
-        ctx.fillStyle = this.fontColor;
+        ctx.fillStyle = this.bgColor;
         ctx.beginPath();
         ctx.arc(mousePosX, tipY, 4, 0, Math.PI * 2);
         ctx.fill();
+        ctx.stroke();
 
+        //Draw tip
         if (tipIsOpen) {
+          ctx.fillStyle = this.fontColor;
           ctx.beginPath();
           ctx.strokeRect(
             mousePosX - this.leftMargin,

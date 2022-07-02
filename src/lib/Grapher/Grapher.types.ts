@@ -7,6 +7,7 @@ export interface IGrapher {
   readonly height: number;
   readonly width: number;
   readonly fontColor: string;
+  readonly bgColor: string;
   readonly margin: number;
   readonly leftMargin: number;
 }
@@ -17,5 +18,4 @@ export interface GrapherStyle {
   xSteps: number;
   ySteps: number;
   margin?: number;
-  bgColor?: "white";
 }
